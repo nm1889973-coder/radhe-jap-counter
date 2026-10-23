@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Radhe Jap Counter</title>
+
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#111111">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="./icon-192.png">
+
+<style>
+*{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+}
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    color:white;
+    min-height:100vh;
+    background:
+        linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)),
+        url("./god-wallpaper.jpg") center/cover fixed;
+}
+
+.container{
+    width:100%;
+    max-width:650px;
+    margin:auto;
+    padding:25px 18px 40px;
+    text-align:center;
+}
+
+h1{
+    margin:15px 0 5px;
+    font-size:48px;
+}
+
+.subtitle{
+    font-size:25px;
+    margin-bottom:25px;
+}
+
+button{
+    width:100%;
+    border:none;
+    border-radius:25px;
+    padding:18px 15px;
+    margin:10px 0;
+    font-size:21px;
+    font-weight:bold;
+    cursor:pointer;
+    background:rgba(255,255,255,.88);
+    color:#111;
+}
+
+button:active{
+    transform:scale(.97);
+}
+
+.card{
+    background:rgba(0,0,0,.55);
+    border-radius:25px;
+    padding:22px;
+    margin-top:20px;
+}
+
+.hidden{
+    display:none;
+}
+
+.count{
+    font-size:75px;
+    font-weight:bold;
+    margin:20px 0;
+}
+
+.mala{
+    font-size:24px;
+    margin:10px;
+}
+
+.tap{
+    width:210px;
+    height:210px;
+    margin:25px auto;
+    border-radius:50%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:rgba(255,255,255,.85);
+    color:#222;
+    font-size:30px;
+    font-weight:bold;
+    box-shadow:0 0 30px rgba(255,255,255,.4);
+    user-select:none;
+}
+
+.progress-box{
+    background:rgba(255,255,255,.2);
+    border-radius:20px;
+    height:25px;
+    overflow:hidden;
+    margin:15px 0;
+}
+
+.progress-bar{
+    height:100%;
+    width:0%;
+    background:#ffd54f;
+    transition:.3s;
+}
+
+.stat{
+    background:rgba(255,255,255,.12);
+    border-radius:15px;
+    padding:15px;
+    margin:10px 0;
+    font-size:20px;
+}
+
+.history-item{
+    text-align:left;
+    background:rgba(255,255,255,.12);
+    padding:14px;
+    margin:8px 0;
+    border-radius:14px;
+}
+
+.badge{
+    display:inline-block;
+    width:120px;
+    margin:8px;
+    padding:18px 8px;
+    border-radius:18px;
+    background:rgba(255,255,255,.15);
+    font-size:16px;
+}
+
+.badge.locked{
+    opacity:.35;
+}
+
+.small{
+    font-size:15px;
+    opacity:.8;
+}
+
+input{
+    width:100%;
+    padding:15px;
+    border-radius:15px;
+    border:none;
+    font-size:18px;
+    margin:10px 0;
+}
+
+.floating{
+    position:fixed;
+    pointer-events:none;
+    font-size:30px;
+    font-weight:bold;
+    animation:floatUp 2s forwards;
+    z-index:9999;
+}
+
+@keyframes floatUp{
+    0%{opacity:1;transform:translateY(0) scale(1)}
+    100%{opacity:0;transform:translateY(-130px) scale(1.4)}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- HOME -->
+<section id="home">
+    <h1>🌸 राधे 🌸</h1>
+    <div class="subtitle">Radhe Jap Counter</div>
+
+    <button onclick="showPage('start')">🙏 START JAP</button>
+    <button onclick="showPage('achievements')">🏆 MY ACHIEVEMENTS</button>
+    <button onclick="showProgress()">📊 MY PROGRESS</button>
+    <button onclick="showHistory()">📜 JAP HISTORY</button>
+</section>
+
+
+<!-- START -->
+<section id="start" class="hidden">
+    <div class="card">
+        <h2>Choose Jap Mode</h2>
+
+        <button onclick="startUnlimited()">♾️ Unlimited Jap</button>
+        <button onclick="showTarget()">🎯 Targeted Jap</button>
+
+        <button onclick="showPage('home')">⬅️ BACK</button>
+    </div>
+</section>
+
+
+<!-- TARGET -->
+<section id="target" class="hidden">
+    <div class="card">
+        <h2>🎯 Select Target</h2>
+
+        <button onclick="startTarget(11)">11 Jap</button>
+        <button onclick="startTarget(21)">21 Jap</button>
+        <button onclick="startTarget(51)">51 Jap</button>
+        <button onclick="startTarget(108)">108 Jap</button>
+        <button onclick="startTarget(1080)">1080 Jap</button>
+
+        <input id="customTarget" type="number" min="1" placeholder="Enter custom target">
+
+        <button onclick="startCustom()">✨ Custom Target</button>
+        <button onclick="showPage('start')">⬅️ BACK</button>
+    </div>
+</section>
+
+
+<!-- JAP -->
+<section id="jap" class="hidden">
+
+    <div class="card">
+
+        <h2 id="modeTitle">Radhe Jap</h2>
+
+        <div class="count" id="count">0</div>
+
+        <div class="mala">
+            🪷 Mala: <span id="mala">0</span>
+        </div>
+
+        <div id="targetText"></div>
+
+        <div class="progress-box">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="tap" onclick="doJap()">
+            🌸<br>RADHE
+        </div>
+
+        <button onclick="saveSession()">💾 SAVE JAP</button>
+        <button onclick="finishSession()">✅ FINISH</button>
+        <button onclick="showPage('home')">⬅️ HOME</button>
+
+    </div>
+</section>
+
+
+<!-- PROGRESS -->
+<section id="progress" class="hidden">
+    <div class="card">
+
+        <h2>📊 MY PROGRESS</h2>
+
+        <div class="stat">
+            🌸 Total Jap<br>
+            <b id="totalJap">0</b>
+        </div>
+
+        <div class="stat">
+            📅 Today<br>
+            <b id="todayJap">0</b>
+        </div>
+
+        <div class="stat">
+            🕐 Yesterday<br>
+            <b id="yesterdayJap">0</b>
+        </div>
+
+        <div class="stat">
+            🔥 Current Streak<br>
+            <b id="streak">0 days</b>
+        </div>
+
+        <div class="stat">
+            🏆 Best Day<br>
+            <b id="bestDay">0</b>
+        </div>
+
+        <button onclick="showPage('home')">⬅️ HOME</button>
+
+    </div>
+</section>
+
+
+<!-- HISTORY -->
+<section id="history" class="hidden">
+    <div class="card">
+
+        <h2>📜 JAP HISTORY</h2>
+
+        <div id="historyList"></div>
+
+        <button onclick="clearHistory()">🗑️ CLEAR HISTORY</button>
+        <button onclick="showPage('home')">⬅️ HOME</button>
+
+    </div>
+</section>
+
+
+<!-- ACHIEVEMENTS -->
+<section id="achievements" class="hidden">
+    <div class="card">
+
+        <h2>🏆 MY ACHIEVEMENTS</h2>
+
+        <div id="badges"></div>
+
+        <button onclick="showPage('home')">⬅️ HOME</button>
+
+    </div>
+</section>
+
+</div>
+
+
+<script>
+
+/* =========================
+   DATA
+========================= */
+
+let count = 0;
+let target = null;
+let mode = "unlimited";
+
+const TOTAL_KEY = "radheTotalJap";
+const HISTORY_KEY = "radheJapHistory";
+
+
+/* =========================
+   PAGE SYSTEM
+========================= */
+
+function hideAll(){
+    document.querySelectorAll("section").forEach(s=>{
+        s.classList.add("hidden");
+    });
+}
+
+function showPage(page){
+    hideAll();
+    document.getElementById(page).classList.remove("hidden");
+}
+
+function showTarget(){
+    showPage("target");
+}
+
+
+/* =========================
+   START JAP
+========================= */
+
+function startUnlimited(){
+
+    count = 0;
+    target = null;
+    mode = "unlimited";
+
+    updateJapScreen();
+
+    document.getElementById("modeTitle").innerText =
+        "♾️ Unlimited Jap";
+
+    document.getElementById("targetText").innerText =
+        "Keep chanting as long as you want.";
+
+    showPage("jap");
+}
+
+
+function startTarget(number){
+
+    count = 0;
+    target = number;
+    mode = "target";
+
+    updateJapScreen();
+
+    document.getElementById("modeTitle").innerText =
+        "🎯 Target: " + number;
+
+    showPage("jap");
+}
+
+
+function startCustom(){
+
+    const value = Number(
+        document.getElementById("customTarget").value
+    );
+
+    if(!value || value < 1){
+        alert("Please enter a valid target.");
+        return;
+    }
+
+    startTarget(value);
+}
+
+
+/* =========================
+   JAP COUNT
+========================= */
+
+function doJap(){
+
+    count++;
+
+    updateJapScreen();
+
+    showFloating();
+
+    if(count % 108 === 0){
+        alert("🌸 108 Jap Complete! Radhe Radhe 🙏");
+    }
+
+    if(target && count >= target){
+
+        saveSession();
+
+        setTimeout(()=>{
+            alert("🎉 Target Complete!\nRadhe Radhe 🙏");
+        },100);
+
+    }
+}
+
+
+function updateJapScreen(){
+
+    document.getElementById("count").innerText = count;
+
+    document.getElementById("mala").innerText =
+        Math.floor(count / 108);
+
+    if(target){
+
+        let percentage =
+            Math.min(100,(count/target)*100);
+
+        document.getElementById("progressBar").style.width =
+            percentage + "%";
+
+        document.getElementById("targetText").innerText =
+            count + " / " + target;
+
+    }else{
+
+        document.getElementById("progressBar").style.width = "0%";
+
+    }
+}
+
+
+/* =========================
+   SAVE SESSION
+========================= */
+
+function saveSession(){
+
+    if(count <= 0){
+        alert("First do some Jap.");
+        return;
+    }
+
+    const history =
+        JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+
+    const today = getDateString(new Date());
+
+    history.push({
+        date:today,
+        count:count,
+        mode:mode,
+        target:target,
+        time:new Date().toLocaleTimeString()
+    });
+
+    localStorage.setItem(
+        HISTORY_KEY,
+        JSON.stringify(history)
+    );
+
+    const total =
+        Number(localStorage.getItem(TOTAL_KEY) || 0);
+
+    localStorage.setItem(
+        TOTAL_KEY,
+        total + count
+    );
+
+    alert("✅ Jap saved successfully!");
+
+    count = 0;
+    updateJapScreen();
+}
+
+
+function finishSession(){
+
+    if(count > 0){
+        saveSession();
+    }
+
+    showPage("home");
+}
+
+
+/* =========================
+   FLOATING RADHE
+========================= */
+
+function showFloating(){
+
+    const el =
+        document.createElement("div");
+
+    el.className = "floating";
+    el.innerText = "🌸 राधे 🌸";
+
+    el.style.left =
+        Math.random()*70 + 15 + "%";
+
+    el.style.top =
+        "60%";
+
+    document.body.appendChild(el);
+
+    setTimeout(()=>{
+        el.remove();
+    },2000);
+}
+
+
+/* =========================
+   DATE
+========================= */
+
+function getDateString(date){
+
+    const y = date.getFullYear();
+
+    const m =
+        String(date.getMonth()+1).padStart(2,"0");
+
+    const d =
+        String(date.getDate()).padStart(2,"0");
+
+    return y+"-"+m+"-"+d;
+}
+
+
+/* =========================
+   PROGRESS
+========================= */
+
+function showProgress(){
+
+    const history =
+        JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+
+    const total =
+        Number(localStorage.getItem(TOTAL_KEY) || 0);
+
+    const today =
+        getDateString(new Date());
+
+    const yesterdayDate =
+        new Date();
+
+    yesterdayDate.setDate(
+        yesterdayDate.getDate()-1
+    );
+
+    const yesterday =
+        getDateString(yesterdayDate);
+
+    let todayCount = 0;
+    let yesterdayCount = 0;
+
+    const daily = {};
+
+    history.forEach(item=>{
+
+        daily[item.date] =
+            (daily[item.date] || 0) + item.count;
+
+        if(item.date === today){
+            todayCount += item.count;
+        }
+
+        if(item.date === yesterday){
+            yesterdayCount += item.count;
+        }
+
+    });
+
+    document.getElementById("totalJap").innerText =
+        total;
+
+    document.getElementById("todayJap").innerText =
+        todayCount;
+
+    document.getElementById("yesterdayJap").innerText =
+        yesterdayCount;
+
+    const dates =
+        Object.keys(daily).sort().reverse();
+
+    let streak = 0;
+
+    let checkDate = new Date();
+
+    for(let i=0;i<dates.length+1;i++){
+
+        const dateString =
+            getDateString(checkDate);
+
+        if(daily[dateString] > 0){
+
+            streak++;
+
+            checkDate.setDate(
+                checkDate.getDate()-1
+            );
+
+        }else{
+
+            break;
+        }
+    }
+
+    document.getElementById("streak").innerText =
+        streak + " days";
+
+    let best = 0;
+
+    Object.values(daily).forEach(v=>{
+        if(v > best) best = v;
+    });
+
+    document.getElementById("bestDay").innerText =
+        best;
+
+    showPage("progress");
+}
+
+
+/* =========================
+   HISTORY
+========================= */
+
+function showHistory(){
+
+    const history =
+        JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+
+    const box =
+        document.getElementById("historyList");
+
+    box.innerHTML = "";
+
+    if(history.length === 0){
+
+        box.innerHTML =
+            "<p>No Jap history yet. Start chanting! 🌸</p>";
+
+    }else{
+
+        history.slice().reverse().forEach(item=>{
+
+            const div =
+                document.createElement("div");
+
+            div.className = "history-item";
+
+            div.innerHTML =
+                "📅 <b>"+item.date+"</b><br>" +
+                "🌸 Jap: <b>"+item.count+"</b><br>" +
+                "🕐 "+item.time;
+
+            box.appendChild(div);
+
+        });
+
+    }
+
+    showPage("history");
+}
+
+
+function clearHistory(){
+
+    if(!confirm("Delete all Jap history?")){
+        return;
+    }
+
+    localStorage.removeItem(HISTORY_KEY);
+    localStorage.removeItem(TOTAL_KEY);
+
+    showHistory();
+}
+
+
+/* =========================
+   ACHIEVEMENTS
+========================= */
+
+const badges = [
+
+    {n:1, icon:"🌱", name:"First Jap"},
+    {n:108, icon:"🌸", name:"108 Jap"},
+    {n:1080, icon:"🏵️", name:"1080 Jap"},
+    {n:2100, icon:"🔥", name:"2100 Jap"},
+    {n:5004, icon:"⭐", name:"5004 Jap"},
+    {n:10008, icon:"👑", name:"10008 Jap"},
+    {n:21006, icon:"💎", name:"21006 Jap"},
+    {n:50000, icon:"🏆", name:"50000 Jap"},
+    {n:100000, icon:"🥇", name:"100000 Jap"},
+    {n:216000, icon:"✨", name:"216000 Jap"},
+    {n:300300, icon:"🌺", name:"300300 Jap"}
+];
+
+
+function renderBadges(){
+
+    const total =
+        Number(localStorage.getItem(TOTAL_KEY) || 0);
+
+    const box =
+        document.getElementById("badges");
+
+    box.innerHTML = "";
+
+    badges.forEach(b=>{
+
+        const unlocked =
+            total >= b.n;
+
+        const div =
+            document.createElement("div");
+
+        div.className =
+            "badge " + (unlocked ? "" : "locked");
+
+        div.innerHTML =
+            "<div style='font-size:35px'>"+
+            b.icon+
+            "</div>"+
+            "<b>"+b.name+"</b>"+
+            "<br>"+
+            "<span class='small'>"+
+            (unlocked ? "UNLOCKED" : "LOCKED")+
+            "</span>";
+
+        box.appendChild(div);
+
+    });
+}
+
+
+/* =========================
+   SERVICE WORKER
+========================= */
+
+if("serviceWorker" in navigator){
+
+    window.addEventListener("load",()=>{
+
+        navigator.serviceWorker
+        .register("./sw.js")
+        .then(()=>{
+            console.log("Service Worker registered.");
+        })
+        .catch(error=>{
+            console.error(
+                "Service Worker registration failed:",
+                error
+            );
+        });
+
+    });
+
+}
+
+
+/* =========================
+   STARTUP
+========================= */
+
+renderBadges();
+
+</script>
+
+</body>
+                                             </html>
